@@ -109,7 +109,7 @@ jobs:
 
         dotnet nuget list source
 
-        dotnet nuget push '${{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+        dotnet nuget push './.artifacts/packages/*.nupkg' `
           --skip-duplicate `
           --source "github" `
           --api-key $token
@@ -127,7 +127,7 @@ jobs:
 #          throw 'NUGET_KEY is not set'
 #        }
 #
-#        dotnet nuget push '${{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+#        dotnet nuget push './.artifacts/packages/*.nupkg' `
 #          --skip-duplicate `
 #          --source "nuget.org" `
 #          --api-key $token
