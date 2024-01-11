@@ -30,7 +30,7 @@ tasks:
       }
 
       dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
-        --source "github" ` 
+        --source "github" `
         --skip-duplicate `
         --source "github" `
         --api-key $token
@@ -44,7 +44,7 @@ tasks:
       }
 
       dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
-        --source "github" ` 
+        --source "github" `
         --skip-duplicate `
         --source "github" `
         --api-key $token
