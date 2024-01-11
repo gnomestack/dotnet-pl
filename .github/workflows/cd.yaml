@@ -28,14 +28,14 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: "🦕 Setup Deno"
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: v1.x
+#    - name: "🦕 Setup Deno"
+#      uses: denoland/setup-deno@v1
+#      with:
+#        deno-version: v1.x
 
-    - name: "🔥 Install Fire"
-      run: |
-        deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
+#    - name: "🔥 Install Fire"
+#      run: |
+#        deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
 
     - name: 🔧 Setup .NET Core # Required to execute ReportGenerator
       uses: actions/setup-dotnet@v3
@@ -44,20 +44,24 @@ jobs:
         dotnet-quality: 'ga'
 
     - name: 🔁 Restore 
-      run: fire restore
+      run: |
+        dotnet restore ./pl.sln
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🏭 Build
-      run: fire build
+      run: |
+        dotnet build ./pl.sln --no-restore -c '${{ env.BUILD_CFG }}'
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🧪 Test
-      run: fire test
+      run: |
+        dotnet test ./pl.sln --no-restore --no-build -c '${{ env.BUILD_CFG }}'
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 📦 Pack
       if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: fire pack
+      run: |
+        dotnet pack ./pl.sln --no-restore --no-build -c '${{ env.BUILD_CFG }}' --output './.artifacts/packages'
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🔼 Upload Artifacts
@@ -74,14 +78,14 @@ jobs:
     - name: 🧳 Checkout
       uses: actions/checkout@v4
 
-    - name: "🦕 Setup Deno"
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: v1.x
+ #   - name: "🦕 Setup Deno"
+ #     uses: denoland/setup-deno@v1
+ #     with:
+ #       deno-version: v1.x
 
-    - name: "🔥 Install Fire"
-      run: |
-        deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
+ #   - name: "🔥 Install Fire"
+ #     run: |
+ #       deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
 
     - name: 🔽 Download Artifacts
       uses: actions/download-artifact@v3
@@ -90,14 +94,33 @@ jobs:
         path: ".artifacts/packages"
         
     - name: 📦 Github Publish
-      run: fire github_publish
+      run: |
+        $token = '{{ env.GH_KEY }}'
+        if ($token -eq 'NOT_SET' -or '' -eq $token) {
+          throw 'GH_KEY is not set'
+        }
+
+        dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+          --skip-duplicate `
+          --source "github" `
+          --api-key $token
+      shell: pwsh
       if: ${{ startsWith(github.ref, env.TAG_REF) }}
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🌭 Evaluate Tag Ref
       run: echo 'ref ${{ github.ref}} => ${{ env.TAG_REF }}?'
 
- #   - name: Nuget Publish
- #     run: fire nuget_publish
- #     if: ${{ startsWith(github.ref, env.TAG_REF) }}
- #     working-directory: ${{ env.PROJECT_DIR }}
+#    - name: Nuget Publish
+#      run: |
+#        $token = '{{ env.NUGET_KEY }}'
+#        if ($token -eq 'NOT_SET' -or '' -eq $token) {
+#          throw 'NUGET_KEY is not set'
+#        }
+#
+#        dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+#          --skip-duplicate `
+#          --source "nuget.org" `
+#          --api-key $token
+#      if: ${{ startsWith(github.ref, env.TAG_REF) }}
+#      working-directory: ${{ env.PROJECT_DIR }}

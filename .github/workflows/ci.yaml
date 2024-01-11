@@ -42,14 +42,14 @@ jobs:
         echo "NUGET_KEY: ${{ env.NUGET_KEY }}"
         echo "BUILD_CFG: ${{ env.BUILD_CFG }}"
 
-    - name: "🦕 Setup Deno" 
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: v1.x
+#    - name: "🦕 Setup Deno" 
+#      uses: denoland/setup-deno@v1
+#      with:
+#        deno-version: v1.x
 
-    - name: "🔥 Install Fire"
-      run: |
-        deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
+#    - name: "🔥 Install Fire"
+#      run: |
+#        deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
 
     - name: 🔧 Setup .NET Core # Required to execute ReportGenerator
       uses: actions/setup-dotnet@v3
@@ -58,20 +58,24 @@ jobs:
         dotnet-quality: 'ga'
 
     - name: 🔁 Restore 
-      run: fire restore
+      run: |
+        dotnet restore ./pl.sln
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🏭 Build
-      run: fire build
+      run: |
+        dotnet build ./pl.sln --no-restore -c '${{ env.BUILD_CFG }}'
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🧪 Test
-      run: fire test
+      run: |
+        dotnet test ./pl.sln --no-restore --no-build -c '${{ env.BUILD_CFG }}'
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 📦 Pack
       if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: fire pack
+      run: |
+        dotnet pack ./pl.sln --no-restore --no-build -c '${{ env.BUILD_CFG }}' --output './.artifacts/packages'
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🔼 Upload Artifacts
