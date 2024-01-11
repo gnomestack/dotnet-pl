@@ -1,0 +1,72 @@
+name: Continuous Integration
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  
+env:
+  PROJECT_DIR: ${{ github.workspace }}
+  TAG_REF: "refs/tags/0."
+  GH_ORG: "gnomestack"
+  GH_USER: "bowtiedgnome"
+  GH_KEY: ${{ secrets.GH_PACKAGES_PAT }}
+  NUGET_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
+  BUILD_CFG: "Release"
+  
+
+jobs:
+  build: 
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    
+    steps:
+    - name: 🧳 Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: "🦕 Setup Deno" 
+      uses: denoland/setup-deno@v1
+      with:
+        deno-version: v1.x
+
+    - name: "🔥 Install Fire"
+      run: |
+        deno install --unstable -qAn fire "https://deno.land/x/gs_fire@0.0.0/cli.ts"
+
+    - name: 🔧 Setup .NET Core # Required to execute ReportGenerator
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.x
+        dotnet-quality: 'ga'
+
+    - name: 🔁 Restore 
+      run: qtr restore
+      working-directory: ${{ env.PROJECT_DIR }}
+
+    - name: 🏭 Build
+      run: qtr build
+      working-directory: ${{ env.PROJECT_DIR }}
+
+    - name: 🧪 Test
+      run: qtr test
+      working-directory: ${{ env.PROJECT_DIR }}
+
+    - name: 📦 Pack
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: qtr pack
+      working-directory: ${{ env.PROJECT_DIR }}
+
+    - name: 🔼 Upload Artifacts
+      uses: actions/upload-artifact@v3
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      with:
+        name: "${{ env.PROJECT_DIR }}-nupkgs"
+        path: .artifacts/packages/*.nupkg

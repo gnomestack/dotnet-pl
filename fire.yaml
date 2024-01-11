@@ -1,0 +1,63 @@
+
+env:
+  BUILD_CFG: "${BUILD_CFG:-Debug}"
+  ARTIFACTS_DIR: "${ARTIFACTS_DIR:-./.artifacts}"
+  GH_KEY: "${GH_KEY:-NOT_SET}"
+  NUGET_KEY: "${NUGET_KEY:-NOT_SET}"
+
+tasks:
+  restore:
+    run: |
+      dotnet restore ./pl.sln
+
+  build:
+    run: |
+      dotnet build ./pl.sln -c {{ env.BUILD_CFG }} --no-restore
+
+  test:
+    run: |
+      dotnet test ./pl.sln -c {{ env.BUILD_CFG }} --no-restore --no-build
+
+  pack:
+    run: |
+      dotnet pack ./pl.sln -c {{ env.BUILD_CFG }} --no-restore --no-build --output "{{ env.ARTIFACTS_DIR }}/packages"
+
+  github-publish:
+    run: |
+      $token = '{{ env.GH_KEY }}'
+      if ($token -eq 'NOT_SET' -or '' -eq $token) {
+        throw 'GH_KEY is not set'
+      }
+
+      dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+        --source "github" ` 
+        --skip-duplicate `
+        --source "github" `
+        --api-key $token
+    shell: pwsh
+
+  nuget-publish:
+    run: |
+      $token = '{{ env.NUGET_KEY }}'
+      if ($token -eq 'NOT_SET' -or '' -eq $token) {
+        throw 'NUGET_KEY is not set'
+      }
+
+      dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+        --source "github" ` 
+        --skip-duplicate `
+        --source "github" `
+        --api-key $token
+    shell: pwsh
+
+jobs:
+  build:
+    steps:
+      - restore
+      - build
+
+  test:
+    steps:
+      - restore
+      - build
+      - test
