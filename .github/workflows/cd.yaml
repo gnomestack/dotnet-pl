@@ -90,13 +90,14 @@ jobs:
         path: ".artifacts/packages"
         
     - name: 📦 Github Publish
-      run: fire github:publish
+      run: fire github_publish
+      if: ${{ startsWith(github.ref, env.TAG_REF) }}
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🌭 Evaluate Tag Ref
       run: echo 'ref ${{ github.ref}} => ${{ env.TAG_REF }}?'
 
  #   - name: Nuget Publish
- #     run: qtr nuget:publish
+ #     run: fire nuget_publish
  #     if: ${{ startsWith(github.ref, env.TAG_REF) }}
  #     working-directory: ${{ env.PROJECT_DIR }}

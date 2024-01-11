@@ -22,7 +22,7 @@ tasks:
     run: |
       dotnet pack ./pl.sln -c {{ env.BUILD_CFG }} --no-restore --no-build --output "{{ env.ARTIFACTS_DIR }}/packages"
 
-  github-publish:
+  github_publish:
     run: |
       $token = '{{ env.GH_KEY }}'
       if ($token -eq 'NOT_SET' -or '' -eq $token) {
@@ -36,7 +36,7 @@ tasks:
         --api-key $token
     shell: pwsh
 
-  nuget-publish:
+  nuget_publish:
     run: |
       $token = '{{ env.NUGET_KEY }}'
       if ($token -eq 'NOT_SET' -or '' -eq $token) {
