@@ -78,5 +78,5 @@ jobs:
       uses: actions/upload-artifact@v3
       if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
-        name: "${{ env.PROJECT_DIR }}-nupkgs"
+        name: "nupkgs"
         path: .artifacts/packages/*.nupkg

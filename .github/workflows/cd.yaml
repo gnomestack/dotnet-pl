@@ -64,7 +64,7 @@ jobs:
       uses: actions/upload-artifact@v3
       if: ${{ matrix.os == 'ubuntu-latest' }}
       with:
-        name: "${{ env.PROJECT_DIR }}-nupkgs"
+        name: "nupkgs"
         path: .artifacts/packages/*.nupkg
 
   publish:
@@ -86,7 +86,7 @@ jobs:
     - name: 🔽 Download Artifacts
       uses: actions/download-artifact@v3
       with:
-        name: "${{ env.PROJECT_DIR }}-nupkgs"
+        name: "nupkgs"
         path: ".artifacts/packages"
         
     - name: 📦 Github Publish
