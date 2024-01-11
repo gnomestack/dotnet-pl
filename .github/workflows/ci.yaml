@@ -32,6 +32,16 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
+    - name: "Env"
+      run: |
+        echo "PROJECT_DIR: ${{ env.PROJECT_DIR }}"
+        echo "TAG_REF: ${{ env.TAG_REF }}"
+        echo "GH_ORG: ${{ env.GH_ORG }}"
+        echo "GH_USER: ${{ env.GH_USER }}"
+        echo "GH_KEY: ${{ env.GH_KEY }}"
+        echo "NUGET_KEY: ${{ env.NUGET_KEY }}"
+        echo "BUILD_CFG: ${{ env.BUILD_CFG }}"
+
     - name: "🦕 Setup Deno" 
       uses: denoland/setup-deno@v1
       with:
@@ -48,20 +58,20 @@ jobs:
         dotnet-quality: 'ga'
 
     - name: 🔁 Restore 
-      run: qtr restore
+      run: fire restore
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🏭 Build
-      run: qtr build
+      run: fire build
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🧪 Test
-      run: qtr test
+      run: fire test
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 📦 Pack
       if: ${{ matrix.os == 'ubuntu-latest' }}
-      run: qtr pack
+      run: fire pack
       working-directory: ${{ env.PROJECT_DIR }}
 
     - name: 🔼 Upload Artifacts
