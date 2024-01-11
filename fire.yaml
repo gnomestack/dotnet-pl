@@ -12,15 +12,15 @@ tasks:
 
   build:
     run: |
-      dotnet build ./pl.sln -c {{ env.BUILD_CFG }} --no-restore
+      dotnet build ./pl.sln --no-restore -c '{{ env.BUILD_CFG }}' 
 
   test:
     run: |
-      dotnet test ./pl.sln -c {{ env.BUILD_CFG }} --no-restore --no-build
+      dotnet test ./pl.sln --no-restore --no-build -c '{{ env.BUILD_CFG }}' 
 
   pack:
     run: |
-      dotnet pack ./pl.sln -c {{ env.BUILD_CFG }} --no-restore --no-build --output "{{ env.ARTIFACTS_DIR }}/packages"
+      dotnet pack ./pl.sln --no-restore --no-build -c '{{ env.BUILD_CFG }}' --output '{{ env.ARTIFACTS_DIR }}/packages'
 
   github_publish:
     run: |
@@ -30,7 +30,6 @@ tasks:
       }
 
       dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
-        --source "github" `
         --skip-duplicate `
         --source "github" `
         --api-key $token
@@ -44,9 +43,8 @@ tasks:
       }
 
       dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
-        --source "github" `
         --skip-duplicate `
-        --source "github" `
+        --source "nuget.org" `
         --api-key $token
     shell: pwsh
 
