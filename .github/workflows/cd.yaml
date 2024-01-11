@@ -95,7 +95,7 @@ jobs:
         
     - name: 📦 Github Publish
       run: |
-        $token = '{{ env.GH_KEY }}'
+        $token = '${{ env.GH_KEY }}'
         if ($token -eq 'NOT_SET' -or '' -eq $token) {
           throw 'GH_KEY is not set'
         }
@@ -109,7 +109,7 @@ jobs:
 
         dotnet nuget list source
 
-        dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+        dotnet nuget push '${{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
           --skip-duplicate `
           --source "github" `
           --api-key $token
@@ -122,12 +122,12 @@ jobs:
 
 #    - name: Nuget Publish
 #      run: |
-#        $token = '{{ env.NUGET_KEY }}'
+#        $token = '${{ env.NUGET_KEY }}'
 #        if ($token -eq 'NOT_SET' -or '' -eq $token) {
 #          throw 'NUGET_KEY is not set'
 #        }
 #
-#        dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
+#        dotnet nuget push '${{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
 #          --skip-duplicate `
 #          --source "nuget.org" `
 #          --api-key $token
