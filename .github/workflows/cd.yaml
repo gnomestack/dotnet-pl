@@ -100,6 +100,15 @@ jobs:
           throw 'GH_KEY is not set'
         }
 
+        dotnet nuget add source `
+          --username ${{ env.GH_USER }} `
+          --password $token `
+          --store-password-in-clear-text `
+          --name "github" `
+          'https://nuget.pkg.github.com/${{ env.GH_ORG }}/index.json'
+
+        dotnet nuget list source
+
         dotnet nuget push '{{ env.ARTIFACTS_DIR }}/packages/*.nupkg' `
           --skip-duplicate `
           --source "github" `
